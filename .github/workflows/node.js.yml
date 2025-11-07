@@ -179,6 +179,7 @@ jobs:
 
   deploy_to_kubernetes:
     runs-on: Agent-1
+    needs: trivy_image_scan
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
