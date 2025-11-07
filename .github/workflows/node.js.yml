@@ -176,3 +176,28 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: CRITICAL,HIGH
+
+  deploy_to_kubernetes:
+    runs-on: Agent-1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: latest
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s-prod/sc.yaml
+          kubectl apply -f k8s-prod/mysql.yaml
+          kubectl apply -f k8s-prod/backend.yaml
+          kubectl apply -f k8s-prod/frontend.yaml
+          kubectl apply -f k8s-prod/ci.yaml
+          kubectl apply -f k8s-prod/ingress.yaml
